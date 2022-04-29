@@ -16,6 +16,7 @@
     "image"
   ],
   "dependencies": {
+    "adm-zip": "^0.4.16",
     "body-parser": "^1.18.3",
     "chalk": "^4.1.0",
     "cookie-parser": "^1.4.5",

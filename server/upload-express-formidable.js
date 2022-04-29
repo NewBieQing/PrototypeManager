@@ -4,26 +4,27 @@ var fs = require('fs');
 var path = require("path");
 var log4js = require('log4js');
 var logger = log4js.getLogger();
-logger.level = 'debug'; 
+logger.level = 'debug';
 var unzip = require('unzip-zhcn');
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 var formidable = require('formidable');
 const deleteEmpty = require('delete-empty');
 var del = require('delete');
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express+EJS+mysql+s2' });
+  res.render('index', {title: 'Express+EJS+mysql+s2'});
 });
 router.post('/upload_zip', function (req, res, next) {
   logger.info('开始文件上传....');
   var form = new formidable.IncomingForm();
   form.encoding = 'utf-8';
   form.uploadDir = "./prototypeFile/";
-  form.keepExtensions = true;  
+  form.keepExtensions = true;
   form.maxFieldsSize = 100 * 1024 * 1024;
   form.parse(req, function (err, fields, files) {
     logger.info(JSON.stringify(files));
     logger.info(files.prototypeFile.path);
     logger.info('文件名:' + files.prototypeFile.name);
+
     function getFormatDate() {
       var date = new Date();
       var month = date.getMonth() + 1;
@@ -37,6 +38,7 @@ router.post('/upload_zip', function (req, res, next) {
       var currentDate = `${date.getFullYear()}${month}${strDate}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
       return currentDate;
     }
+
     var t = getFormatDate();
     var newFileName = files.prototypeFile.name;
     fs.exists("./prototypeFile/" + files.prototypeFile.name, (result) => {
@@ -64,15 +66,18 @@ router.post('/upload_zip', function (req, res, next) {
                           console.log(deleted)
                           try {
                             logger.info("开始解压");
-                            unzip.extractSync("./prototypeFile/" + files.prototypeFile.name, './prototypeFile/', 'cp936');
+                            var AdmZip = require("adm-zip");
+                            var zip = new AdmZip("./prototypeFile/" + files.prototypeFile.name);
+                            zip.extractAllTo(/*target path*/ './prototypeFile/', /*overwrite*/ true);
                             logger.info("解压完成");
-
                           } catch (error) {
                           }
                         });
                     } else {
                       logger.info("开始解压");
-                      unzip.extractSync("./prototypeFile/" + files.prototypeFile.name, './prototypeFile/', 'cp936');
+                      var AdmZip = require("adm-zip");
+                      var zip = new AdmZip("./prototypeFile/" + files.prototypeFile.name);
+                      zip.extractAllTo(/*target path*/ './prototypeFile/', /*overwrite*/ true);
                       logger.info("解压完成");
                     }
                   });
@@ -106,32 +111,36 @@ router.post('/upload_zip', function (req, res, next) {
                       console.log(deleted)
                       try {
                         logger.info("开始解压");
-                        unzip.extractSync("./prototypeFile/" + files.prototypeFile.name, './prototypeFile/', 'cp936');
+                        var AdmZip = require("adm-zip");
+                        var zip = new AdmZip("./prototypeFile/" + files.prototypeFile.name);
+                        zip.extractAllTo(/*target path*/ './prototypeFile/', /*overwrite*/ true);
                         logger.info("解压完成");
-
+                        logger.info("解压完成");
                       } catch (error) {
                         logger.error(error);
-
                       }
                     });
                 } else {
-                  logger.info("开始解压");
-                  unzip.extractSync("./prototypeFile/" + files.prototypeFile.name, './prototypeFile/', 'cp936');
-                  logger.info("解压完成");
+                  try {
+                    logger.info("开始解压");
+                    var AdmZip = require("adm-zip");
+                    var zip = new AdmZip("./prototypeFile/" + files.prototypeFile.name);
+                    zip.extractAllTo(/*target path*/ './prototypeFile/', /*overwrite*/ true);
+                    logger.info("解压完成");
+                  } catch (error) {
+                    logger.error(error);
+                  }
                 }
               });
             } else {
               console.log("客户端上传文件是rar");
-              // TODO 
+              // TODO
             }
           }
         });
         res.end(JSON.stringify(files));
-
       }
     });
-
-
 
   });
 
